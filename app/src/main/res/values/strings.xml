@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Background Recorder</string>
+    <string name="title_gallery">Recordings</string>
+    <string name="start_recording">START RECORDING</string>
+    <string name="stop_recording">STOP RECORDING</string>
+    <string name="screen_off_safe_msg">Recording active in background. You can turn off the screen or leave the app safely.</string>
+</resources>

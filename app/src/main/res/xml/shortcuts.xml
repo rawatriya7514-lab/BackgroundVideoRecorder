@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="shortcut_quick_record"
+        android:enabled="true"
+        android:icon="@drawable/ic_quick_record"
+        android:shortLabel="Quick Record"
+        android:longLabel="1-Tap Background Record">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.antigravity.bvr"
+            android:targetClass="com.antigravity.bvr.ui.QuickRecordActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+</shortcuts>

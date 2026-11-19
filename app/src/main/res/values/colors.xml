@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Mode Theme Palette -->
+    <color name="bg_dark">#121212</color>
+    <color name="card_dark">#1E1E1E</color>
+    <color name="card_dark_stroke">#2E2E2E</color>
+    <color name="surface_dark">#242424</color>
+
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B0B0B0</color>
+    <color name="text_muted">#757575</color>
+
+    <!-- Recording State Colors -->
+    <color name="record_start_green">#00C853</color>
+    <color name="record_stop_red">#D50000</color>
+    <color name="record_pulse_red">#FF1744</color>
+    <color name="badge_idle_bg">#333333</color>
+
+    <!-- Accent / Branding -->
+    <color name="brand_cyan">#00E5FF</color>
+    <color name="chip_checked_bg">#2979FF</color>
+    <color name="chip_checked_text">#FFFFFF</color>
+</resources>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Hardware Camera & Mic features -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+
+    <!-- Runtime Permissions -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Notifications (Android 13+ / API 33+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Foreground Service Permissions (Base + Android 14+ / API 34+ / Android 15/16 specific types) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+
+    <!-- Storage permissions for Gallery & MediaStore querying -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"
+        tools:ignore="ScopedStorage" />
+
+    <application
+        android:name=".BvrApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_notification"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_notification"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.BackgroundVideoRecorder">
+
+        <!-- Main Screen -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- App Shortcuts on long-press -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity>
+
+        <!-- 1-Tap Quick Record Shortcut Activity (Direct Launcher Icon & Shortcut) -->
+        <activity
+            android:name=".ui.QuickRecordActivity"
+            android:exported="true"
+            android:icon="@drawable/ic_quick_record"
+            android:label="Quick Record"
+            android:roundIcon="@drawable/ic_quick_record"
+            android:theme="@style/Theme.TransparentQuickRecord"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Recordings Gallery -->
+        <activity
+            android:name=".ui.GalleryActivity"
+            android:exported="false"
+            android:label="@string/title_gallery"
+            android:parentActivityName=".ui.MainActivity" />
+
+        <!-- Background Video Recording Foreground Service -->
+        <service
+            android:name=".service.BackgroundRecordingService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="camera|microphone" />
+
+        <!-- Quick Settings Tile Service -->
+        <service
+            android:name=".service.QuickRecordTileService"
+            android:icon="@drawable/ic_quick_record"
+            android:label="Quick Record"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+    </application>
+
+</manifest>

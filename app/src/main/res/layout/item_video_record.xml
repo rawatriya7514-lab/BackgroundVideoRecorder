@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    app:cardBackgroundColor="@color/card_dark"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <!-- Thumbnail Container -->
+        <FrameLayout
+            android:id="@+id/fl_thumbnail_container"
+            android:layout_width="100dp"
+            android:layout_height="75dp"
+            android:background="@color/surface_dark"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_video_thumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="Video Thumbnail"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_play"
+                app:tint="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/tv_video_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="4dp"
+                android:background="#B3000000"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="1dp"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                tools:text="00:45" />
+        </FrameLayout>
+
+        <!-- Video Info -->
+        <TextView
+            android:id="@+id/tv_video_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/ll_actions"
+            app:layout_constraintStart_toEndOf="@id/fl_thumbnail_container"
+            app:layout_constraintTop_toTopOf="@id/fl_thumbnail_container"
+            tools:text="BVR_20261119_182500.mp4" />
+
+        <TextView
+            android:id="@+id/tv_video_meta"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toStartOf="@id/ll_actions"
+            app:layout_constraintStart_toEndOf="@id/fl_thumbnail_container"
+            app:layout_constraintTop_toBottomOf="@id/tv_video_title"
+            tools:text="Nov 19, 2026 18:25 • 24.5 MB" />
+
+        <!-- Actions: Play, Share, Delete -->
+        <LinearLayout
+            android:id="@+id/ll_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btn_play_video"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Play"
+                android:src="@drawable/ic_play"
+                app:tint="@color/brand_cyan" />
+
+            <ImageButton
+                android:id="@+id/btn_share_video"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Share"
+                android:src="@drawable/ic_share"
+                app:tint="@color/text_secondary" />
+
+            <ImageButton
+                android:id="@+id/btn_delete_video"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete"
+                android:src="@drawable/ic_delete"
+                app:tint="@color/record_stop_red" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
