@@ -54,6 +54,8 @@ data class RecordingServiceState(
     val errorMessage: String? = null
 )
 
+typealias ServiceState = RecordingServiceState
+
 class BackgroundRecordingService : LifecycleService() {
 
     companion object {
@@ -72,8 +74,6 @@ class BackgroundRecordingService : LifecycleService() {
 
         const val CAMERA_BACK = 0
         const val CAMERA_FRONT = 1
-
-        typealias ServiceState = RecordingServiceState
 
         private val _recordingState = MutableStateFlow(RecordingServiceState())
         val recordingState: StateFlow<RecordingServiceState> = _recordingState.asStateFlow()
