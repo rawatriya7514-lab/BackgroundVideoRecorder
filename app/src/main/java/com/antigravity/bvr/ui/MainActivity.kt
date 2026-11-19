@@ -178,7 +178,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateUIState(state: BackgroundRecordingService.ServiceState) {
+    private fun updateUIState(state: com.antigravity.bvr.service.RecordingServiceState) {
         if (state.isRecording) {
             // Active Recording UI
             binding.tvStatusBadge.text = "REC"
@@ -234,8 +234,8 @@ class MainActivity : AppCompatActivity() {
                 updateStorageDisplay()
             }
 
-            state.errorMessage?.let { error ->
-                Toast.makeText(this, error, Toast.LENGTH_LONG).show()
+            state.errorMessage?.let { errorMsg: String ->
+                Toast.makeText(this, errorMsg as CharSequence, Toast.LENGTH_LONG).show()
             }
         }
     }

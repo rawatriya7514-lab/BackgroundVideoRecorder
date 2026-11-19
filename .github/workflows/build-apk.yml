@@ -43,7 +43,6 @@ jobs:
 
       - name: Attach APK to GitHub Release
         uses: softprops/action-gh-release@v2
-        if: always()
         with:
           tag_name: v1.0.0
           files: release-assets/BackgroundVideoRecorder-v1.0.0.apk

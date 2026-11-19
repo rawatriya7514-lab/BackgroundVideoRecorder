@@ -43,6 +43,17 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+data class RecordingServiceState(
+    val isRecording: Boolean = false,
+    val isFinalizing: Boolean = false,
+    val durationSeconds: Long = 0,
+    val cameraFacing: Int = 0,
+    val quality: String = "1080p",
+    val audioEnabled: Boolean = true,
+    val lastSavedUri: Uri? = null,
+    val errorMessage: String? = null
+)
+
 class BackgroundRecordingService : LifecycleService() {
 
     companion object {
@@ -62,19 +73,10 @@ class BackgroundRecordingService : LifecycleService() {
         const val CAMERA_BACK = 0
         const val CAMERA_FRONT = 1
 
-        data class ServiceState(
-            val isRecording: Boolean = false,
-            val isFinalizing: Boolean = false,
-            val durationSeconds: Long = 0,
-            val cameraFacing: Int = CAMERA_BACK,
-            val quality: String = "1080p",
-            val audioEnabled: Boolean = true,
-            val lastSavedUri: Uri? = null,
-            val errorMessage: String? = null
-        )
+        typealias ServiceState = RecordingServiceState
 
-        private val _recordingState = MutableStateFlow(ServiceState())
-        val recordingState: StateFlow<ServiceState> = _recordingState.asStateFlow()
+        private val _recordingState = MutableStateFlow(RecordingServiceState())
+        val recordingState: StateFlow<RecordingServiceState> = _recordingState.asStateFlow()
     }
 
     private val binder = LocalBinder()
