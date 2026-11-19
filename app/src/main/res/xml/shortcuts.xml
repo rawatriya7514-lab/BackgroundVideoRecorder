@@ -4,8 +4,8 @@
         android:shortcutId="shortcut_quick_record"
         android:enabled="true"
         android:icon="@drawable/ic_quick_record"
-        android:shortLabel="Quick Record"
-        android:longLabel="1-Tap Background Record">
+        android:shortLabel="@string/shortcut_short_label"
+        android:longLabel="@string/shortcut_long_label">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.antigravity.bvr"

@@ -4,4 +4,6 @@
     <string name="start_recording">START RECORDING</string>
     <string name="stop_recording">STOP RECORDING</string>
     <string name="screen_off_safe_msg">Recording active in background. You can turn off the screen or leave the app safely.</string>
+    <string name="shortcut_short_label">Quick Record</string>
+    <string name="shortcut_long_label">1-Tap Background Record</string>
 </resources>
