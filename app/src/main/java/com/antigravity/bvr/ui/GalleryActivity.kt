@@ -10,6 +10,9 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.antigravity.bvr.data.VideoRecording
@@ -28,8 +31,23 @@ class GalleryActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         binding = ActivityGalleryBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+            val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            binding.toolbarGallery.setPadding(0, statusBars.top, 0, 0)
+            binding.rvRecordings.setPadding(
+                binding.rvRecordings.paddingLeft,
+                binding.rvRecordings.paddingTop,
+                binding.rvRecordings.paddingRight,
+                navBars.bottom + 16
+            )
+            insets
+        }
 
         repository = VideoRepository(this)
 

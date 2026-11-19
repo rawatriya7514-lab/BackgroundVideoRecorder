@@ -170,6 +170,7 @@ class BackgroundRecordingService : LifecycleService() {
 
         // 2. Configure Quality Selector
         val quality = when (currentQuality) {
+            "4K" -> Quality.UHD
             "720p" -> Quality.HD
             else -> Quality.FHD
         }

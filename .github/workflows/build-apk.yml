@@ -33,18 +33,31 @@ jobs:
       - name: Rename APK for Release
         run: |
           mkdir -p release-assets
-          cp app/build/outputs/apk/debug/app-debug.apk release-assets/BackgroundVideoRecorder-v1.0.0.apk
+          cp app/build/outputs/apk/debug/app-debug.apk release-assets/BackgroundVideoRecorder-v1.0.1.apk
+          cp app/build/outputs/apk/debug/app-debug.apk release-assets/BackgroundVideoRecorder-latest.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BackgroundVideoRecorder-APK
-          path: release-assets/BackgroundVideoRecorder-v1.0.0.apk
+          path: release-assets/*.apk
 
       - name: Attach APK to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          files: release-assets/BackgroundVideoRecorder-v1.0.0.apk
+          tag_name: v1.0.1
+          name: "v1.0.1 - Premium UI/UX & Safe Insets Architecture"
+          body: |
+            ### 🚀 Background Video Recorder v1.0.1
+
+            #### 💎 Premium UI/UX & Architectural Enhancements:
+            - **Pixel-Perfect Safe Insets**: Fixed top status bar, notch, and punch-hole overlap using `ViewCompat.setOnApplyWindowInsetsListener`. No views are clipped or obstructed.
+            - **Smooth Scroll Architecture**: Enclosed in `NestedScrollView` to guarantee flawless layout on compact screens, tall aspect ratios, and foldables.
+            - **Segmented Lens Selection**: Front (Selfie) and Rear (Main) camera selector with instant feedback.
+            - **Resolution Switcher**: Toggle between 4K Ultra HD, 1080p Full HD, and 720p HD.
+            - **Hero HUD Action Center**: Central tactile breathing ring with prominent circular Start/Stop trigger and monospace glowing HUD digital timer (`00:00:00`).
+            - **Framing Preview (Collapsible)**: Check camera framing with live preview before recording; automatically disconnects during capture for background safety.
+            - **1-Tap Shortcut Integration**: Pin shortcut to home screen for instant background capture without opening the UI.
+          files: release-assets/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

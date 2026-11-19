@@ -2,286 +2,636 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_dark"
-    android:padding="20dp">
+    android:background="@color/bg_dark">
 
-    <!-- Top App Bar -->
-    <TextView
-        android:id="@+id/tv_app_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="BVR"
-        android:textColor="@color/brand_cyan"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_app_subtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="Background Recorder"
-        android:textColor="@color/text_primary"
-        android:textSize="18sp"
-        app:layout_constraintBaseline_toBaselineOf="@id/tv_app_title"
-        app:layout_constraintStart_toEndOf="@id/tv_app_title" />
-
-    <ImageButton
-        android:id="@+id/btn_info_consent"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Info &amp; Consent"
-        android:src="@drawable/ic_info"
-        app:layout_constraintBottom_toBottomOf="@id/tv_app_title"
-        app:layout_constraintEnd_toStartOf="@id/btn_open_gallery"
-        app:layout_constraintTop_toTopOf="@id/tv_app_title"
-        app:tint="@color/text_secondary" />
-
-    <ImageButton
-        android:id="@+id/btn_open_gallery"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Gallery"
-        android:src="@drawable/ic_gallery"
-        app:layout_constraintBottom_toBottomOf="@id/tv_app_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tv_app_title"
-        app:tint="@color/text_primary" />
-
-    <!-- Status & Timer Card -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/card_status"
+    <!-- Top Safe Header Bar (System Insets Handled) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/header_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        app:cardBackgroundColor="@color/card_dark"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/tv_app_title">
+        android:background="#0E0F1A"
+        android:paddingHorizontal="18dp"
+        android:paddingVertical="12dp"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/ll_brand"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:padding="24dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_quick_record" />
 
             <TextView
-                android:id="@+id/tv_status_badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_badge_idle"
-                android:letterSpacing="0.1"
-                android:text="IDLE"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_timer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:fontFamily="monospace"
-                android:text="00:00:00"
-                android:textColor="@color/text_primary"
-                android:textSize="44sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_screen_off_note"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:text="Screen-Off active. Safe to press power button or switch apps."
+                android:layout_marginStart="8dp"
+                android:letterSpacing="0.05"
+                android:text="BVR"
                 android:textColor="@color/brand_cyan"
-                android:textSize="12sp"
-                android:visibility="gone"
-                tools:visibility="visible" />
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tv_storage_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Storage: Calculating..."
-                android:textColor="@color/text_muted"
-                android:textSize="12sp" />
+                android:layout_marginStart="6dp"
+                android:background="#23263E"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:text="PRO"
+                android:textColor="@color/brand_purple"
+                android:textSize="10sp"
+                android:textStyle="bold" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
-    <!-- Settings & Configuration Card -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/card_settings"
+        <TextView
+            android:id="@+id/tv_header_storage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/bg_badge_idle"
+            android:drawableStart="@drawable/ic_storage"
+            android:drawablePadding="5dp"
+            android:drawableTint="@color/text_muted"
+            android:gravity="center_vertical"
+            android:text="Storage"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_info_consent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_info_consent"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginEnd="6dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Info &amp; Consent"
+            android:src="@drawable/ic_info"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_open_gallery"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/text_secondary" />
+
+        <ImageButton
+            android:id="@+id/btn_open_gallery"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Gallery"
+            android:src="@drawable/ic_gallery"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/text_primary" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Scrollable Main Content (Ensures No Overlap or Clipping on Any Device) -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nested_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:cardBackgroundColor="@color/card_dark"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/card_status">
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_bar">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingHorizontal="16dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="28dp">
 
-            <!-- Camera Selector -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Camera Lens"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/group_camera"
+            <!-- 1. Hero HUD Status & Timer Display Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                app:singleSelection="true">
+                app:cardBackgroundColor="@color/card_dark"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/card_dark_stroke"
+                app:strokeWidth="1.2dp">
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_camera_back"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="Back Camera"
-                    android:textColor="@color/text_primary"
-                    app:chipBackgroundColor="@color/surface_dark" />
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="18dp">
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_camera_front"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Front Camera"
-                    android:textColor="@color/text_primary"
-                    app:chipBackgroundColor="@color/surface_dark" />
-            </com.google.android.material.chip.ChipGroup>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-            <!-- Video Quality Selector -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="Resolution"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tv_status_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_badge_idle"
+                            android:letterSpacing="0.08"
+                            android:text="STANDBY"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/group_quality"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                app:singleSelection="true">
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_quality_1080p"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="1080p Full HD"
-                    android:textColor="@color/text_primary"
-                    app:chipBackgroundColor="@color/surface_dark" />
+                        <TextView
+                            android:id="@+id/tv_active_summary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Rear • 1080p • Audio On"
+                            android:textColor="@color/text_muted"
+                            android:textSize="11sp" />
+                    </LinearLayout>
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_quality_720p"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="720p HD"
-                    android:textColor="@color/text_primary"
-                    app:chipBackgroundColor="@color/surface_dark" />
-            </com.google.android.material.chip.ChipGroup>
+                    <!-- Monospace Glowing HUD Timer -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_hud_timer"
+                        android:gravity="center"
+                        android:paddingVertical="14dp">
 
-            <!-- Audio Recording Switch -->
+                        <TextView
+                            android:id="@+id/tv_timer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:letterSpacing="0.04"
+                            android:text="00:00:00"
+                            android:textColor="@color/text_primary"
+                            android:textSize="48sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Real-time screen-off status message -->
+                    <TextView
+                        android:id="@+id/tv_screen_off_note"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:gravity="center"
+                        android:text="🔒 Screen-Off Safe: Lock screen or switch apps freely."
+                        android:textColor="@color/brand_cyan"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 2. Hero Action Center (Pulsing Record Button) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_marginTop="18dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <FrameLayout
+                    android:layout_width="120dp"
+                    android:layout_height="120dp">
+
+                    <!-- Breathing Halo Pulse Ring -->
+                    <View
+                        android:id="@+id/v_pulse_ring"
+                        android:layout_width="114dp"
+                        android:layout_height="114dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_ring_pulse" />
+
+                    <!-- Primary Hero Trigger Button -->
+                    <ImageButton
+                        android:id="@+id/btn_hero_record"
+                        android:layout_width="88dp"
+                        android:layout_height="88dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_record_btn_idle"
+                        android:contentDescription="Record Action"
+                        android:elevation="6dp"
+                        android:src="@drawable/ic_record_start"
+                        app:tint="#FFFFFF" />
+                </FrameLayout>
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Record Audio"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp" />
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switch_audio"
+                    android:id="@+id/tv_btn_status_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="true" />
+                    android:layout_marginTop="8dp"
+                    android:letterSpacing="0.08"
+                    android:text="TAP TO START RECORDING"
+                    android:textColor="@color/record_start_green"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
             </LinearLayout>
+
+            <!-- 3. Integrated Camera & Resolution Control Center -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_settings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                app:cardBackgroundColor="@color/card_dark"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/card_dark_stroke"
+                app:strokeWidth="1.2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <!-- A. Camera Lens Selector (Rear vs Front) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:letterSpacing="0.06"
+                            android:text="CAMERA LENS"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_selected_camera_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Rear (Main)"
+                            android:textColor="@color/brand_cyan"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/toggle_group_camera"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        app:checkedButton="@id/btn_select_rear"
+                        app:selectionRequired="true"
+                        app:singleSelection="true">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_select_rear"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="Rear (Main)"
+                            android:textAllCaps="false"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            app:icon="@drawable/ic_cam_rear"
+                            app:iconGravity="textStart"
+                            app:iconPadding="8dp"
+                            app:iconTint="@null"
+                            app:strokeColor="@color/card_dark_stroke" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_select_front"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="Front (Selfie)"
+                            android:textAllCaps="false"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            app:icon="@drawable/ic_cam_front"
+                            app:iconGravity="textStart"
+                            app:iconPadding="8dp"
+                            app:iconTint="@null"
+                            app:strokeColor="@color/card_dark_stroke" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="14dp"
+                        android:background="#1B1E30" />
+
+                    <!-- B. Video Resolution Selector (4K, 1080p, 720p) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:letterSpacing="0.06"
+                            android:text="VIDEO RESOLUTION"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_selected_res_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1080p Full HD"
+                            android:textColor="@color/brand_cyan"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/toggle_group_quality"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        app:checkedButton="@id/btn_quality_1080p"
+                        app:selectionRequired="true"
+                        app:singleSelection="true">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_quality_4k"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="46dp"
+                            android:layout_weight="1"
+                            android:text="4K UHD"
+                            android:textAllCaps="false"
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp"
+                            app:strokeColor="@color/card_dark_stroke" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_quality_1080p"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="46dp"
+                            android:layout_weight="1"
+                            android:text="1080p FHD"
+                            android:textAllCaps="false"
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp"
+                            app:strokeColor="@color/card_dark_stroke" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_quality_720p"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="46dp"
+                            android:layout_weight="1"
+                            android:text="720p HD"
+                            android:textAllCaps="false"
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp"
+                            app:strokeColor="@color/card_dark_stroke" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="14dp"
+                        android:background="#1B1E30" />
+
+                    <!-- C. Audio Microphone Toggle -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/iv_mic_status"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_mic_on"
+                            app:tint="@color/brand_cyan" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Audio Recording"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_audio_subtext"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Enabled (Captures stereo sound)"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch_audio"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 4. Collapsible Live Camera Framing Preview Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_preview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="@color/card_dark"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/card_dark_stroke"
+                app:strokeWidth="1.2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:id="@+id/ll_preview_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_preview_eye"
+                            app:tint="@color/brand_cyan" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:text="Framing Preview (Optional)"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_preview_toggle_action"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show"
+                            android:textColor="@color/brand_cyan"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <FrameLayout
+                        android:id="@+id/fl_preview_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"
+                        android:layout_marginTop="12dp"
+                        android:background="#0A0B12"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <androidx.camera.view.PreviewView
+                            android:id="@+id/preview_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom|center_horizontal"
+                            android:layout_marginBottom="8dp"
+                            android:background="#99000000"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:text="Preview active for framing only"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp" />
+                    </FrameLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 5. 1-Tap Home Screen Shortcut Pin Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="#111424"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#242B4C"
+                app:strokeWidth="1.2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_quick_record" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1-Tap Instant Record"
+                                android:textColor="@color/text_primary"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Start / Stop directly with 1 tap from home screen"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_pin_shortcut"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="12dp"
+                        android:letterSpacing="0.04"
+                        android:text="Pin Shortcut to Home Screen"
+                        android:textColor="@color/brand_cyan"
+                        android:textSize="12sp"
+                        app:cornerRadius="22dp"
+                        app:icon="@drawable/ic_quick_record"
+                        app:iconGravity="textStart"
+                        app:iconPadding="6dp"
+                        app:iconSize="18dp"
+                        app:iconTint="@null"
+                        app:strokeColor="@color/brand_cyan"
+                        app:strokeWidth="1dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Bottom Disclaimer / Safe Tip -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"
+                android:text="Continuous background recording is active once triggered. Turning off screen does not interrupt capture."
+                android:textColor="@color/text_muted"
+                android:textSize="11sp" />
+
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Instructions Notice -->
-    <TextView
-        android:id="@+id/tv_instructions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:gravity="center"
-        android:text="Tip: Once started, press power button or switch apps. Recording runs continuously."
-        android:textColor="@color/text_muted"
-        android:textSize="12sp"
-        app:layout_constraintTop_toBottomOf="@id/card_settings" />
-
-    <!-- 1-Tap Home Screen Pin Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_pin_shortcut"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="8dp"
-        android:letterSpacing="0.02"
-        android:text="Add 1-Tap Shortcut to Home Screen"
-        android:textColor="@color/brand_cyan"
-        android:textSize="13sp"
-        app:cornerRadius="24dp"
-        app:icon="@drawable/ic_quick_record"
-        app:iconGravity="textStart"
-        app:iconPadding="8dp"
-        app:iconSize="20dp"
-        app:iconTint="@null"
-        app:layout_constraintTop_toBottomOf="@id/tv_instructions"
-        app:strokeColor="@color/brand_cyan"
-        app:strokeWidth="1dp" />
-
-    <!-- Big Action Button (Start / Stop) -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_toggle_record"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/record_start_green"
-        android:letterSpacing="0.05"
-        android:text="START RECORDING"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:cornerRadius="32dp"
-        app:icon="@drawable/ic_record_start"
-        app:iconGravity="textStart"
-        app:iconPadding="10dp"
-        app:iconSize="24dp"
-        app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

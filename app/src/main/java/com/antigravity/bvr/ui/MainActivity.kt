@@ -10,16 +10,23 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.antigravity.bvr.R
 import com.antigravity.bvr.databinding.ActivityMainBinding
 import com.antigravity.bvr.service.BackgroundRecordingService
+import com.antigravity.bvr.service.RecordingServiceState
 import com.antigravity.bvr.util.FormatUtils
 import com.antigravity.bvr.util.PermissionUtils
 import kotlinx.coroutines.launch
@@ -31,7 +38,9 @@ class MainActivity : AppCompatActivity() {
     private var selectedCameraFacing = BackgroundRecordingService.CAMERA_BACK
     private var selectedQuality = "1080p"
     private var isAudioEnabled = true
+    private var isPreviewVisible = false
 
+    private var previewCameraProvider: ProcessCameraProvider? = null
     private var pulseAnimation: AlphaAnimation? = null
 
     // Permission launcher for runtime permissions
@@ -43,6 +52,9 @@ class MainActivity : AppCompatActivity() {
 
         if (cameraGranted && audioGranted) {
             Toast.makeText(this, "Permissions granted. Ready to record.", Toast.LENGTH_SHORT).show()
+            if (isPreviewVisible) {
+                startCameraPreview()
+            }
         } else {
             showPermissionDeniedExplanation()
         }
@@ -50,9 +62,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Enable edge-to-edge layout safely
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupWindowInsets()
         setupUI()
         setupListeners()
         observeRecordingState()
@@ -64,6 +80,37 @@ class MainActivity : AppCompatActivity() {
         updateStorageDisplay()
     }
 
+    override fun onPause() {
+        super.onPause()
+        stopCameraPreview()
+    }
+
+    /**
+     * Fixes top status bar / notch / camera cutout overlap and bottom gesture navigation bar overlap.
+     */
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val statusBarInset = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+            val navBarInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+
+            binding.headerBar.setPadding(
+                binding.headerBar.paddingLeft,
+                statusBarInset.top + 8,
+                binding.headerBar.paddingRight,
+                8
+            )
+
+            binding.nestedScrollView.setPadding(
+                binding.nestedScrollView.paddingLeft,
+                binding.nestedScrollView.paddingTop,
+                binding.nestedScrollView.paddingRight,
+                navBarInset.bottom + 16
+            )
+
+            insets
+        }
+    }
+
     private fun setupUI() {
         // Load saved preferences
         val prefs = getSharedPreferences(QuickRecordActivity.PREFS_SETTINGS, Context.MODE_PRIVATE)
@@ -71,14 +118,39 @@ class MainActivity : AppCompatActivity() {
         selectedQuality = prefs.getString(QuickRecordActivity.KEY_QUALITY, "1080p") ?: "1080p"
         isAudioEnabled = prefs.getBoolean(QuickRecordActivity.KEY_AUDIO_ENABLED, true)
 
-        binding.chipCameraBack.isChecked = (selectedCameraFacing == BackgroundRecordingService.CAMERA_BACK)
-        binding.chipCameraFront.isChecked = (selectedCameraFacing == BackgroundRecordingService.CAMERA_FRONT)
-        binding.chipQuality1080p.isChecked = (selectedQuality == "1080p")
-        binding.chipQuality720p.isChecked = (selectedQuality == "720p")
+        // Initialize Camera Lens Selection
+        if (selectedCameraFacing == BackgroundRecordingService.CAMERA_FRONT) {
+            binding.toggleGroupCamera.check(R.id.btn_select_front)
+            binding.tvSelectedCameraText.text = "Front (Selfie)"
+        } else {
+            binding.toggleGroupCamera.check(R.id.btn_select_rear)
+            binding.tvSelectedCameraText.text = "Rear (Main)"
+        }
+
+        // Initialize Resolution Selection
+        when (selectedQuality) {
+            "4K" -> {
+                binding.toggleGroupQuality.check(R.id.btn_quality_4k)
+                binding.tvSelectedResText.text = "4K Ultra HD"
+            }
+            "720p" -> {
+                binding.toggleGroupQuality.check(R.id.btn_quality_720p)
+                binding.tvSelectedResText.text = "720p HD"
+            }
+            else -> {
+                binding.toggleGroupQuality.check(R.id.btn_quality_1080p)
+                binding.tvSelectedResText.text = "1080p Full HD"
+            }
+        }
+
+        // Initialize Audio Switch
         binding.switchAudio.isChecked = isAudioEnabled
+        updateAudioUiState(isAudioEnabled)
+
+        updateActiveSummaryText()
 
         // Pulse animation for recording state
-        pulseAnimation = AlphaAnimation(0.4f, 1.0f).apply {
+        pulseAnimation = AlphaAnimation(0.35f, 1.0f).apply {
             duration = 750
             repeatMode = Animation.REVERSE
             repeatCount = Animation.INFINITE
@@ -88,43 +160,66 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        // Start / Stop toggle button
-        binding.btnToggleRecord.setOnClickListener {
+        // Hero Trigger Button (Start / Stop)
+        binding.btnHeroRecord.setOnClickListener {
             handleRecordToggleClick()
         }
 
-        // Camera facing selector chips
-        binding.chipCameraBack.setOnClickListener {
-            selectedCameraFacing = BackgroundRecordingService.CAMERA_BACK
-            binding.chipCameraBack.isChecked = true
-            binding.chipCameraFront.isChecked = false
-            saveCurrentPreferences()
-        }
-        binding.chipCameraFront.setOnClickListener {
-            selectedCameraFacing = BackgroundRecordingService.CAMERA_FRONT
-            binding.chipCameraFront.isChecked = true
-            binding.chipCameraBack.isChecked = false
-            saveCurrentPreferences()
+        // Camera Lens Segmented Toggle
+        binding.toggleGroupCamera.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                selectedCameraFacing = if (checkedId == R.id.btn_select_front) {
+                    BackgroundRecordingService.CAMERA_FRONT
+                } else {
+                    BackgroundRecordingService.CAMERA_BACK
+                }
+                binding.tvSelectedCameraText.text = if (selectedCameraFacing == BackgroundRecordingService.CAMERA_FRONT) {
+                    "Front (Selfie)"
+                } else {
+                    "Rear (Main)"
+                }
+                updateActiveSummaryText()
+                saveCurrentPreferences()
+
+                if (isPreviewVisible) {
+                    startCameraPreview()
+                }
+            }
         }
 
-        // Quality selector chips
-        binding.chipQuality1080p.setOnClickListener {
-            selectedQuality = "1080p"
-            binding.chipQuality1080p.isChecked = true
-            binding.chipQuality720p.isChecked = false
-            saveCurrentPreferences()
-        }
-        binding.chipQuality720p.setOnClickListener {
-            selectedQuality = "720p"
-            binding.chipQuality720p.isChecked = true
-            binding.chipQuality1080p.isChecked = false
-            saveCurrentPreferences()
+        // Resolution Segmented Toggle
+        binding.toggleGroupQuality.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                when (checkedId) {
+                    R.id.btn_quality_4k -> {
+                        selectedQuality = "4K"
+                        binding.tvSelectedResText.text = "4K Ultra HD"
+                    }
+                    R.id.btn_quality_720p -> {
+                        selectedQuality = "720p"
+                        binding.tvSelectedResText.text = "720p HD"
+                    }
+                    else -> {
+                        selectedQuality = "1080p"
+                        binding.tvSelectedResText.text = "1080p Full HD"
+                    }
+                }
+                updateActiveSummaryText()
+                saveCurrentPreferences()
+            }
         }
 
-        // Audio toggle
+        // Audio Toggle Switch
         binding.switchAudio.setOnCheckedChangeListener { _, isChecked ->
             isAudioEnabled = isChecked
+            updateAudioUiState(isChecked)
+            updateActiveSummaryText()
             saveCurrentPreferences()
+        }
+
+        // Framing Preview Collapsible Card
+        binding.llPreviewHeader.setOnClickListener {
+            toggleFramingPreview()
         }
 
         // 1-Tap Home Screen Shortcut Pinning
@@ -143,10 +238,83 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateAudioUiState(enabled: Boolean) {
+        if (enabled) {
+            binding.ivMicStatus.setImageResource(R.drawable.ic_mic_on)
+            binding.ivMicStatus.setColorFilter(ContextCompat.getColor(this, R.color.brand_cyan))
+            binding.tvAudioSubtext.text = "Enabled (Captures stereo sound)"
+        } else {
+            binding.ivMicStatus.setImageResource(R.drawable.ic_mic_off)
+            binding.ivMicStatus.setColorFilter(ContextCompat.getColor(this, R.color.text_muted))
+            binding.tvAudioSubtext.text = "Muted (No audio track recorded)"
+        }
+    }
+
+    private fun updateActiveSummaryText() {
+        val lens = if (selectedCameraFacing == BackgroundRecordingService.CAMERA_FRONT) "Front" else "Rear"
+        val audio = if (isAudioEnabled) "Audio On" else "Muted"
+        binding.tvActiveSummary.text = "$lens • $selectedQuality • $audio"
+    }
+
+    private fun toggleFramingPreview() {
+        isPreviewVisible = !isPreviewVisible
+        if (isPreviewVisible) {
+            binding.flPreviewContainer.visibility = View.VISIBLE
+            binding.tvPreviewToggleAction.text = "Hide"
+            startCameraPreview()
+        } else {
+            binding.flPreviewContainer.visibility = View.GONE
+            binding.tvPreviewToggleAction.text = "Show"
+            stopCameraPreview()
+        }
+    }
+
+    private fun startCameraPreview() {
+        if (!PermissionUtils.hasCameraPermission(this)) {
+            requestPermissionsLauncher.launch(PermissionUtils.getRequiredPermissions())
+            return
+        }
+
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+        cameraProviderFuture.addListener({
+            try {
+                previewCameraProvider = cameraProviderFuture.get()
+                val cameraSelector = if (selectedCameraFacing == BackgroundRecordingService.CAMERA_FRONT) {
+                    CameraSelector.DEFAULT_FRONT_CAMERA
+                } else {
+                    CameraSelector.DEFAULT_BACK_CAMERA
+                }
+                val preview = Preview.Builder().build().also {
+                    it.setSurfaceProvider(binding.previewView.surfaceProvider)
+                }
+                previewCameraProvider?.unbindAll()
+                previewCameraProvider?.bindToLifecycle(this, cameraSelector, preview)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun stopCameraPreview() {
+        try {
+            previewCameraProvider?.unbindAll()
+        } catch (e: Exception) {
+            // Ignore
+        }
+    }
+
     private fun handleRecordToggleClick() {
         if (!PermissionUtils.hasAllPermissions(this)) {
             requestPermissionsLauncher.launch(PermissionUtils.getRequiredPermissions())
             return
+        }
+
+        // Always release preview before service starts recording
+        stopCameraPreview()
+        if (isPreviewVisible) {
+            binding.flPreviewContainer.visibility = View.GONE
+            binding.tvPreviewToggleAction.text = "Show"
+            isPreviewVisible = false
         }
 
         val currentState = BackgroundRecordingService.recordingState.value
@@ -178,55 +346,69 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateUIState(state: com.antigravity.bvr.service.RecordingServiceState) {
+    private fun updateUIState(state: RecordingServiceState) {
         if (state.isRecording) {
             // Active Recording UI
             binding.tvStatusBadge.text = "REC"
             binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_recording)
             binding.tvTimer.text = FormatUtils.formatDurationSeconds(state.durationSeconds)
 
-            binding.btnToggleRecord.text = "STOP RECORDING"
-            binding.btnToggleRecord.setBackgroundColor(ContextCompat.getColor(this, R.color.record_stop_red))
-            binding.btnToggleRecord.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_record_stop, 0, 0, 0)
+            // Hero Button Active State
+            binding.btnHeroRecord.setBackgroundResource(R.drawable.bg_record_btn_active)
+            binding.btnHeroRecord.setImageResource(R.drawable.ic_record_stop)
+            binding.btnHeroRecord.isEnabled = true
+            binding.tvBtnStatusLabel.text = "TAP TO STOP & SAVE"
+            binding.tvBtnStatusLabel.setTextColor(ContextCompat.getColor(this, R.color.record_stop_red))
 
-            // Start pulse on recording badge
-            if (binding.tvStatusBadge.animation == null) {
-                binding.tvStatusBadge.startAnimation(pulseAnimation)
+            // Start pulse animation on outer ring
+            binding.vPulseRing.visibility = View.VISIBLE
+            if (binding.vPulseRing.animation == null) {
+                binding.vPulseRing.startAnimation(pulseAnimation)
             }
 
-            // Disable configuration adjustments while recording
-            binding.chipCameraBack.isEnabled = false
-            binding.chipCameraFront.isEnabled = false
-            binding.chipQuality1080p.isEnabled = false
-            binding.chipQuality720p.isEnabled = false
+            // Lock controls during capture to ensure stream integrity
+            binding.btnSelectRear.isEnabled = false
+            binding.btnSelectFront.isEnabled = false
+            binding.btnQuality4k.isEnabled = false
+            binding.btnQuality1080p.isEnabled = false
+            binding.btnQuality720p.isEnabled = false
             binding.switchAudio.isEnabled = false
             binding.btnPinShortcut.isEnabled = false
+            binding.cardPreview.isEnabled = false
             binding.tvScreenOffNote.visibility = View.VISIBLE
         } else if (state.isFinalizing) {
             // Finalizing / Saving state
             binding.tvStatusBadge.text = "SAVING"
-            binding.tvStatusBadge.clearAnimation()
+            binding.vPulseRing.clearAnimation()
+            binding.vPulseRing.visibility = View.GONE
             binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_idle)
-            binding.btnToggleRecord.text = "FINALIZING..."
-            binding.btnToggleRecord.isEnabled = false
+            binding.tvBtnStatusLabel.text = "FINALIZING & SAVING..."
+            binding.tvBtnStatusLabel.setTextColor(ContextCompat.getColor(this, R.color.text_muted))
+            binding.btnHeroRecord.isEnabled = false
         } else {
-            // Idle UI
-            binding.tvStatusBadge.text = "IDLE"
-            binding.tvStatusBadge.clearAnimation()
+            // Idle Standby UI
+            binding.tvStatusBadge.text = "STANDBY"
+            binding.vPulseRing.clearAnimation()
+            binding.vPulseRing.visibility = View.GONE
             binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_idle)
             binding.tvTimer.text = "00:00:00"
 
-            binding.btnToggleRecord.text = "START RECORDING"
-            binding.btnToggleRecord.isEnabled = true
-            binding.btnToggleRecord.setBackgroundColor(ContextCompat.getColor(this, R.color.record_start_green))
-            binding.btnToggleRecord.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_record_start, 0, 0, 0)
+            // Hero Button Idle State
+            binding.btnHeroRecord.setBackgroundResource(R.drawable.bg_record_btn_idle)
+            binding.btnHeroRecord.setImageResource(R.drawable.ic_record_start)
+            binding.btnHeroRecord.isEnabled = true
+            binding.tvBtnStatusLabel.text = "TAP TO START RECORDING"
+            binding.tvBtnStatusLabel.setTextColor(ContextCompat.getColor(this, R.color.record_start_green))
 
-            binding.chipCameraBack.isEnabled = true
-            binding.chipCameraFront.isEnabled = true
-            binding.chipQuality1080p.isEnabled = true
-            binding.chipQuality720p.isEnabled = true
+            // Re-enable controls
+            binding.btnSelectRear.isEnabled = true
+            binding.btnSelectFront.isEnabled = true
+            binding.btnQuality4k.isEnabled = true
+            binding.btnQuality1080p.isEnabled = true
+            binding.btnQuality720p.isEnabled = true
             binding.switchAudio.isEnabled = true
             binding.btnPinShortcut.isEnabled = true
+            binding.cardPreview.isEnabled = true
             binding.tvScreenOffNote.visibility = View.GONE
 
             state.lastSavedUri?.let {
@@ -241,7 +423,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateStorageDisplay() {
-        binding.tvStorageInfo.text = "Storage: ${FormatUtils.getAvailableStorageSpace()}"
+        val freeSpace = FormatUtils.getAvailableStorageSpace()
+        binding.tvHeaderStorage.text = freeSpace
     }
 
     private fun checkConsentAndPermissions() {
