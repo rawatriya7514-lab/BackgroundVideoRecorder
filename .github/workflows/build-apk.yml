@@ -33,7 +33,7 @@ jobs:
       - name: Rename APK for Release
         run: |
           mkdir -p release-assets
-          cp app/build/outputs/apk/debug/app-debug.apk release-assets/BackgroundVideoRecorder-v1.0.1.apk
+          cp app/build/outputs/apk/debug/app-debug.apk release-assets/BackgroundVideoRecorder-v1.0.2.apk
           cp app/build/outputs/apk/debug/app-debug.apk release-assets/BackgroundVideoRecorder-latest.apk
 
       - name: Upload APK Artifact
@@ -45,19 +45,19 @@ jobs:
       - name: Attach APK to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.1
-          name: "v1.0.1 - Premium UI/UX & Safe Insets Architecture"
+          tag_name: ${{ github.ref_name }}
+          name: "v1.0.2 - Custom App Icon & Enhanced Premium UI/UX"
           body: |
-            ### 🚀 Background Video Recorder v1.0.1
+            ### 🚀 Background Video Recorder v1.0.2
 
-            #### 💎 Premium UI/UX & Architectural Enhancements:
-            - **Pixel-Perfect Safe Insets**: Fixed top status bar, notch, and punch-hole overlap using `ViewCompat.setOnApplyWindowInsetsListener`. No views are clipped or obstructed.
-            - **Smooth Scroll Architecture**: Enclosed in `NestedScrollView` to guarantee flawless layout on compact screens, tall aspect ratios, and foldables.
-            - **Segmented Lens Selection**: Front (Selfie) and Rear (Main) camera selector with instant feedback.
-            - **Resolution Switcher**: Toggle between 4K Ultra HD, 1080p Full HD, and 720p HD.
-            - **Hero HUD Action Center**: Central tactile breathing ring with prominent circular Start/Stop trigger and monospace glowing HUD digital timer (`00:00:00`).
-            - **Framing Preview (Collapsible)**: Check camera framing with live preview before recording; automatically disconnects during capture for background safety.
-            - **1-Tap Shortcut Integration**: Pin shortcut to home screen for instant background capture without opening the UI.
+            #### 🎨 Custom App Icon & Premium UI Enhancements:
+            - **Custom High-Resolution Launcher Icon**: Integrated user-provided branding icon across all mipmap densities (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`, and adaptive Android 8+ vector foreground/background).
+            - **In-App Branding**: Integrated rounded brand logo in the header and consent modal.
+            - **Pixel-Perfect Safe Insets**: Zero status bar, notch, and punch-hole overlap.
+            - **Ultra-Responsive Controls**: 4K UHD, 1080p FHD, 720p HD resolution switcher & Front/Back camera lens controls.
+            - **Tactile Hero Record Action**: Breathing halo pulse ring with instant feedback.
+            - **Screen-Off Safe Pipeline**: CameraX `LifecycleService` + `PowerManager.PARTIAL_WAKE_LOCK`.
+            - **1-Tap Desktop Shortcut**: Tap icon to record instantly.
           files: release-assets/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
